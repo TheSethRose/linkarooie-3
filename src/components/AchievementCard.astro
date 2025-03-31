@@ -10,32 +10,32 @@ const { achievement } = Astro.props;
 const isHidden = achievement.hidden || false;
 
 // Format date based on showFullDate preference
-const formattedDate = achievement.showFullDate 
+const formattedDate = achievement.showFullDate
   ? new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   : achievement.date;
 ---
 
 {!isHidden && (
-  <a 
+  <a
     href={achievement.url}
     target="_blank"
     rel="noopener noreferrer"
-    class="group block p-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-gray-200 dark:border-gray-700 hover:border-[#ff9500] dark:hover:border-[#ff9500] border-t-4 border-t-[#ff9500] dark:border-t-[#ff9500] text-center"
+    class="group block p-3 bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-gray-700 hover:border-[#ff9500] border-l-2 border-l-[#ff9500] text-left"
     data-track="true"
     data-id={achievement.id}
     data-hidden={isHidden}
     data-type="achievement"
     data-description={achievement.description}
   >
-    <div class="flex flex-col items-center">
-      <h3 class="font-medium text-gray-900 dark:text-white flex items-center flex-wrap justify-center">
-        <span class="inline-flex items-center justify-center w-6 h-6">
-          <i class={`${achievement.icon} text-[#ff9500] dark:text-[#ff9500] text-lg transition-all duration-200 group-hover:scale-110`}></i>
-        </span>
-        <span class="break-words">{achievement.title}</span>
-      </h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-3 sm:line-clamp-none">{achievement.description}</p>
-      <p class="text-xs text-[#ff9500] dark:text-[#ff9500] mt-2 font-medium">{formattedDate}</p>
+    <div class="flex flex-col">
+      <div class="flex justify-between items-start mb-1">
+        <div class="flex items-center">
+          <i class={`${achievement.icon} text-[#ff9500] text-sm transition-all duration-200 group-hover:scale-110 mr-2`}></i>
+          <h3 class="font-medium text-white text-sm">{achievement.title}</h3>
+        </div>
+        <span class="text-xs text-[#ff9500] font-medium whitespace-nowrap ml-2">{formattedDate}</span>
+      </div>
+      <p class="text-xs text-gray-400 line-clamp-2 pl-5">{achievement.description}</p>
     </div>
   </a>
 )}
@@ -48,7 +48,7 @@ const formattedDate = achievement.showFullDate
       if (!window.__hiddenItems) {
         window.__hiddenItems = [];
       }
-      
+
       // Add this item to the collection if not already there
       if (!window.__hiddenItems.some(item => item.id === achievement.id && item.type === 'achievement')) {
         window.__hiddenItems.push({

@@ -3,17 +3,20 @@ export default {
     content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
     theme: {
       extend: {
+        fontFamily: {
+          'inter': ['Inter', 'sans-serif'],
+        },
         colors: {
           primary: {
-            light: '#84ca0b', // Light mode main accent (slightly darker and more readable)
-            dark: '#a5fd0e',  // Dark mode accent (original color)
+            light: '#3494e6', // Light blue for light mode
+            dark: '#5dadff',  // Brighter blue for dark mode
           },
           achievement: {
-            light: '#ff9500', // Light mode achievement accent (orange)
-            dark: '#ff9500',  // Dark mode achievement accent (same orange)
+            light: '#ff9500', // Keep the achievement color
+            dark: '#ff9500',  // Keep it the same in dark mode
           },
           accent: {
-            purple: '#9333ea', // Purple accent for light mode
+            purple: '#3494e6',  // Adjust purple to be more aligned with tech theme
           }
         },
       },

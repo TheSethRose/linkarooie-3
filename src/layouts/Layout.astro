@@ -18,11 +18,11 @@ interface Props {
   username?: string;
 }
 
-const { 
-  title, 
+const {
+  title,
   description = 'Linkarooie - A Linktree-style app to showcase your profile, links, and achievements',
   ogImage = defaultOgImage,
-  username 
+  username
 } = Astro.props;
 
 // Handle both imported image objects and string paths
@@ -36,11 +36,16 @@ const ogImageUrl = typeof ogImage === 'string' ? ogImage : ogImage.src;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
-    
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- SEO -->
     <title>{title}</title>
     <meta name="description" content={description} />
-    
+
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.url} />
@@ -48,7 +53,7 @@ const ogImageUrl = typeof ogImage === 'string' ? ogImage : ogImage.src;
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="twitter:card" content="summary_large_image" />
-    
+
     <!-- PostHog tracking script -->
     {POSTHOG_KEY && (
       <script define:vars={{ POSTHOG_KEY, POSTHOG_HOST }}>
@@ -59,7 +64,7 @@ const ogImageUrl = typeof ogImage === 'string' ? ogImage : ogImage.src;
         });
       </script>
     )}
-    
+
     <!-- Dark mode script - Must be inline and run before any rendering -->
     <script is:inline>
       // On page load, check local storage or system preference
@@ -70,47 +75,18 @@ const ogImageUrl = typeof ogImage === 'string' ? ogImage : ogImage.src;
           document.documentElement.classList.remove('dark');
         }
       }
-      
+
       // Initial theme check
       updateTheme();
     </script>
-    
+
     <ViewTransitions />
   </head>
-  <body class="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-    <header class="bg-gray-50 dark:bg-gray-800 shadow-md transition-colors duration-200 border-b border-gray-200 dark:border-gray-700">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-14 sm:h-16">
-          <div class="flex">
-            <div class="flex-shrink-0 flex items-center">
-              <a href="/" class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center transition-all duration-300 hover:scale-105">
-                <Image src={icon} alt="Linkarooie Icon" width={28} height={28} class="mr-1.5 sm:mr-2 invert dark:invert-0 transition-all duration-200 hover:scale-110" />
-                Link<span class="text-[#9333ea] dark:text-[#a5fd0e]">arooie</span>
-              </a>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3 sm:space-x-4">
-            <!-- Dark mode toggle - Enhanced version -->
-            <button id="theme-toggle" class="relative w-10 h-6 rounded-full bg-gray-200 dark:bg-gray-700 p-0.5 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#9333ea] dark:focus:ring-[#a5fd0e]" aria-label="Toggle dark mode">
-              <span class="sr-only">Toggle dark mode</span>
-              <span class="absolute inset-y-0.5 left-0.5 dark:translate-x-4 w-5 h-5 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center transform transition-all duration-300 shadow-md">
-                <i class="fas fa-sun text-yellow-400 absolute transition-opacity duration-300 opacity-100 dark:opacity-0 text-xs"></i>
-                <i class="fas fa-moon text-blue-300 absolute transition-opacity duration-300 opacity-0 dark:opacity-100 text-xs"></i>
-              </span>
-            </button>
-            <a href="https://github.com/loftwah/linkarooie-3" target="_blank" rel="noopener" class="text-[#9333ea] dark:text-[#a5fd0e] hover:text-[#9333ea]/80 dark:hover:text-[#c7ff5a] transition-all duration-200 hover:scale-110 p-1.5 sm:p-2">
-              <span class="sr-only">GitHub</span>
-              <i class="fab fa-github text-base sm:text-lg"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </header>
-    
+  <body class="font-inter min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
     <main class="flex-grow">
       <slot />
     </main>
-    
+
     <footer class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 sm:py-6 transition-colors duration-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2 sm:gap-0">
@@ -127,7 +103,8 @@ const ogImageUrl = typeof ogImage === 'string' ? ogImage : ogImage.src;
         </div>
       </div>
     </footer>
-    
+
+
     <!-- Theme Toggle Script - Plain JS, no imports -->
     <script is:inline>
       // Set up the theme toggle functionality after page load
@@ -135,17 +112,19 @@ const ogImageUrl = typeof ogImage === 'string' ? ogImage : ogImage.src;
         const themeToggleBtn = document.getElementById('theme-toggle');
 
         // Toggle theme on click
-        themeToggleBtn.addEventListener('click', () => {
-          // Toggle the dark class
-          document.documentElement.classList.toggle('dark');
-          
-          // Save preference to localStorage
-          if (document.documentElement.classList.contains('dark')) {
-            localStorage.theme = 'dark';
-          } else {
-            localStorage.theme = 'light';
-          }
-        });
+        if (themeToggleBtn) {
+          themeToggleBtn.addEventListener('click', () => {
+            // Toggle the dark class
+            document.documentElement.classList.toggle('dark');
+
+            // Save preference to localStorage
+            if (document.documentElement.classList.contains('dark')) {
+              localStorage.theme = 'dark';
+            } else {
+              localStorage.theme = 'light';
+            }
+          });
+        }
       });
 
       // Handle view transitions - important for Astro's page transitions
@@ -159,12 +138,12 @@ const ogImageUrl = typeof ogImage === 'string' ? ogImage : ogImage.src;
 
         // Re-initialize the toggle button after page navigation
         const themeToggleBtn = document.getElementById('theme-toggle');
-        
+
         if (themeToggleBtn) {
           // Re-attach click event
           themeToggleBtn.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark');
-            
+
             if (document.documentElement.classList.contains('dark')) {
               localStorage.theme = 'dark';
             } else {

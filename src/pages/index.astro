@@ -1,123 +1,306 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Directory from '../components/Directory.astro';
-import { getDirectoryProfiles } from '../data';
+import LinkCard from '../components/LinkCard.astro';
+import AchievementCard from '../components/AchievementCard.astro';
 import { Image } from 'astro:assets';
-import backgroundImage from '../assets/background.svg';
-import heroImage from '../assets/images/hero.png';
+import { getProfileByUsername } from '../data';
+import type { Profile } from '../types';
 
-const directoryProfiles = getDirectoryProfiles();
+const username = 'thesethrose';
+const profile: Profile | undefined = getProfileByUsername(username);
+
+if (!profile) {
+  return new Response('Profile not found', { status: 404 });
+}
+
+const ogTitle = profile.ogTitle || `${profile.name} - Linkarooie`;
+const ogDescription = profile.ogDescription || profile.description;
+const ogImage = profile.ogImageUrl;
 ---
 
-<Layout title="Linkarooie - Simplify your online presence" ogImage={heroImage}>
-  <!-- Hero Section -->
-  <div class="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-    <div class="absolute inset-0 z-0 opacity-20">
-      <Image 
-        src={backgroundImage} 
-        alt="Background pattern" 
-        class="w-full h-full object-cover"
+<Layout
+  title={`${profile.name} - Linkarooie`}
+  description={profile.description}
+  ogImage={ogImage}
+  username={profile.username}
+>
+  <!-- Full-width banner section -->
+  <div class="relative w-full bg-gray-900">
+    <div class="w-full h-44 sm:h-52 md:h-64 overflow-hidden">
+      <Image
+        src={profile.bannerUrl}
+        alt={`${profile.name}'s banner`}
+        class="w-full h-full object-cover opacity-90"
+        width={1920}
+        height={300}
+        quality={100}
       />
     </div>
-    
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-      <div class="text-center">
-        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
-          <span class="block">Link<span class="text-[#9333ea] dark:text-[#a5fd0e]">arooie</span></span>
-        </h1>
-        <p class="mt-3 sm:mt-4 max-w-2xl mx-auto text-lg sm:text-xl text-gray-700 dark:text-gray-300">
-          A Linktree-style app to showcase your profile, links, and achievements
-        </p>
-        
-        <!-- Hero Image Display -->
-        <div class="mt-6 sm:mt-8 flex justify-center px-4 sm:px-0">
-          <div class="relative rounded-xl overflow-hidden shadow-xl w-full max-w-sm sm:max-w-md border-2 border-[#9333ea]/20 dark:border-[#a5fd0e]/20">
-            <Image 
-              src={heroImage} 
-              alt="Linkarooie Preview" 
-              class="w-full h-auto transform hover:scale-105 transition-transform duration-300"
-            />
+
+    <!-- Profile picture positioned over banner -->
+    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 lg:left-[20%]">
+      <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-gray-700 dark:border-gray-700 bg-gray-800 dark:bg-gray-800 shadow-lg">
+        <Image
+          src={profile.avatarUrl}
+          alt={`${profile.name}'s avatar`}
+          class="w-full h-full object-cover"
+          width={160}
+          height={160}
+          quality={100}
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content container with dark background -->
+  <div class="w-full bg-gray-900 dark:bg-gray-900 text-white pb-6 sm:pb-8">
+    <div class="w-[95%] sm:w-11/12 md:w-4/5 mx-auto pt-20 sm:pt-24 md:pt-28 pb-4 sm:pb-6">
+      <!-- Two-column grid with adjusted spacing -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <!-- Left column - Profile info only -->
+        <div class="lg:col-span-1">
+          <div class="text-center lg:text-left mb-4 sm:mb-6 lg:mb-0 px-2 sm:px-0">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1">{profile.name}</h1>
+            <p class="text-gray-400 mb-4 sm:mb-5">@{profile.username}</p>
+
+            <p class="mt-3 sm:mt-4 text-lg sm:text-xl text-gray-200 mb-2 sm:mb-3">{profile.description}</p>
+
+            <p class="mt-2 text-sm sm:text-base text-gray-400">{profile.bio}</p>
+
+            {profile.socialLinks.length > 0 && (
+              <div class="flex flex-wrap justify-center space-x-4 sm:space-x-5 mt-6 px-2">
+                {profile.socialLinks.map(social => {
+                  let iconClass = '';
+                  let screenReaderText = social.platform;
+
+                  // Handle special cases for social icons
+                  if (social.platform === 'x-twitter') {
+                    iconClass = 'fab fa-x-twitter text-xl sm:text-2xl';
+                    screenReaderText = 'Twitter/X';
+                  } else if (social.platform === 'threads') {
+                    iconClass = 'fab fa-instagram text-xl sm:text-2xl'; // Use Instagram icon as Threads fallback
+                    screenReaderText = 'Threads';
+                  } else {
+                    iconClass = `fab fa-${social.platform} text-xl sm:text-2xl`;
+                  }
+
+                  return (
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-gray-400 hover:text-primary-light dark:text-gray-400 dark:hover:text-primary-dark transition-all duration-200 transform hover:scale-125"
+                      data-track="true"
+                      data-id={`social-${social.platform}`}
+                      data-type="social"
+                    >
+                      <i class={iconClass}></i>
+                      <span class="sr-only">{screenReaderText}</span>
+                    </a>
+                  );
+                })}
+              </div>
+            )}
+
+            {profile.tags.length > 0 && (
+              <div class="flex flex-wrap justify-center gap-1 sm:gap-2 mt-5 sm:mt-6">
+                {profile.tags.map(tag => (
+                  <button
+                    type="button"
+                    data-tag-name={tag.name}
+                    class="px-2 sm:px-3 py-1 bg-gray-800 text-primary-dark rounded-full text-xs sm:text-sm border border-primary-dark cursor-pointer hover:bg-gray-700 transition-colors"
+                    aria-label={`View details for ${tag.name}`}
+                  >
+                    {tag.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <!-- Middle and Right columns with Links and Achievements -->
+        <div class="lg:col-span-3 mt-12 sm:mt-6 lg:mt-0">
+          <div class="grid grid-cols-1 md:grid-cols-7 gap-5 md:gap-6">
+            <!-- Links Section - takes 5/7 of the space -->
+            <section class="md:col-span-5">
+              <h2 class="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 text-center lg:text-left flex items-center justify-center lg:justify-start">
+                <span>Links</span>
+              </h2>
+              <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                {profile.links.filter(link => !link.hidden).map(link => (
+                  <LinkCard link={link} />
+                ))}
+                {profile.links.filter(link => link.hidden).map(link => (
+                  <LinkCard link={link} />
+                ))}
+              </div>
+            </section>
+
+            <!-- Achievements Section - takes 2/7 of the space -->
+            <section class="md:col-span-2 mt-8 md:mt-0">
+              <h2 class="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 text-center lg:text-left flex items-center justify-center lg:justify-start">
+                <i class="fas fa-trophy text-[#ff9500] mr-2"></i>
+                <span>Achievements</span>
+              </h2>
+              <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                {profile.achievements.filter(achievement => !achievement.hidden).map(achievement => (
+                  <AchievementCard achievement={achievement} />
+                ))}
+                {profile.achievements.filter(achievement => achievement.hidden).map(achievement => (
+                  <AchievementCard achievement={achievement} />
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </div>
     </div>
   </div>
-  
-  <!-- Featured Profiles Section -->
-  <div class="py-12 bg-gray-100 dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Featured Profiles</h2>
-        <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
-          Browse example profiles from our community
-        </p>
+
+  <!-- Modal styling remains the same -->
+  <div id="tag-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 transition-opacity duration-300 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="relative bg-gray-800 text-white p-6 md:p-8 rounded-lg md:rounded-xl mx-4 max-w-lg w-full max-h-[90vh] md:max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-700 transform transition-transform duration-300 ease-out scale-95 opacity-0" id="modal-content">
+      <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors" aria-label="Close modal">
+        <i class="fas fa-times text-xl"></i>
+        <span class="sr-only">Close</span>
+      </button>
+
+      <div class="flex items-center mb-4">
+        <i class="fas fa-tag text-primary-dark mr-3 text-xl"></i>
+        <h3 id="modal-title" class="text-2xl font-bold text-white"></h3>
       </div>
-      
-      <Directory profiles={directoryProfiles} />
-    </div>
-  </div>
-  
-  <!-- About Linkarooie Section -->
-  <div class="py-10 sm:py-14 bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-8 sm:mb-10">
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">About <span class="text-[#9333ea] dark:text-[#a5fd0e]">Linkarooie</span></h2>
-        <p class="mt-2 max-w-2xl mx-auto text-base sm:text-lg text-gray-700 dark:text-gray-300">
-          An open-source alternative to Linktree with a few key features
-        </p>
-      </div>
-      
-      <div class="mt-6 sm:mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Feature 1 -->
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6 transform hover:scale-105 transition-transform duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#9333ea] dark:hover:border-[#a5fd0e]">
-          <div class="text-[#9333ea] dark:text-[#a5fd0e] mb-3">
-            <i class="fas fa-link text-2xl"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Links Management</h3>
-          <p class="text-gray-600 dark:text-gray-300">
-            Showcase your important links with custom icons and descriptions
-          </p>
-        </div>
-        
-        <!-- Feature 2 -->
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6 transform hover:scale-105 transition-transform duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#ff9500] dark:hover:border-[#ff9500]">
-          <div class="text-[#ff9500] dark:text-[#ff9500] mb-3">
-            <i class="fas fa-trophy text-2xl"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Achievements</h3>
-          <p class="text-gray-600 dark:text-gray-300">
-            Display your certifications, milestones, and accomplishments with dates
-          </p>
-        </div>
-        
-        <!-- Feature 3 -->
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md p-6 transform hover:scale-105 transition-transform duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#9333ea] dark:hover:border-[#a5fd0e]">
-          <div class="text-[#9333ea] dark:text-[#a5fd0e] mb-3">
-            <i class="fas fa-moon text-2xl"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Dark Mode</h3>
-          <p class="text-gray-600 dark:text-gray-300">
-            Toggle between light and dark themes with a persistent preference
-          </p>
-        </div>
+
+      <div class="mt-2 mb-4 border-t border-gray-700"></div>
+
+      <p id="modal-description" class="mt-2 text-gray-300 text-lg"></p>
+
+      <div id="modal-citation" class="mt-4 font-medium"></div>
+
+      <div id="modal-related-work" class="mt-6"></div>
+
+      <div class="mt-6 flex justify-end">
+        <button id="close-modal-bottom" class="px-5 py-2.5 bg-primary-dark text-gray-900 rounded-lg hover:bg-opacity-90 transition-colors font-medium shadow-sm">
+          Close
+        </button>
       </div>
     </div>
   </div>
-  
-  <!-- Get Started Section (Consolidated GitHub Section) -->
-  <div class="py-14 bg-accent-purple dark:bg-gray-900 dark:bg-opacity-90 dark:border-t dark:border-[#a5fd0e]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Get Your Own Linkarooie</h2>
-        <p class="mt-2 max-w-2xl mx-auto text-lg text-gray-800 dark:text-gray-200">
-          Fork the project on GitHub to create your own beautiful profile page
-        </p>
-        <div class="mt-8 flex justify-center">
-          <a href="https://github.com/loftwah/linkarooie-3" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-lg text-[#9333ea] bg-white hover:bg-gray-100 dark:text-[#a5fd0e] dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-200 transform hover:scale-105">
-            <i class="fab fa-github text-xl mr-3"></i> Fork on GitHub
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+
+  <!-- Script remains the same -->
+  <script define:vars={{ tags: profile.tags }}>
+    window.profileTags = tags;
+
+    function setupModal() {
+      const modal = document.getElementById('tag-modal');
+      if (!modal) return;
+
+      const modalContent = document.getElementById('modal-content');
+      const title = document.getElementById('modal-title');
+      const description = document.getElementById('modal-description');
+      const citationDiv = document.getElementById('modal-citation');
+      const relatedWorkDiv = document.getElementById('modal-related-work');
+      const closeButtons = document.querySelectorAll('#close-modal, #close-modal-bottom');
+
+      if (!modalContent || !title || !description || !citationDiv || !relatedWorkDiv || !closeButtons.length) {
+        console.error('Required modal elements not found on the page.');
+        return;
+      }
+
+      function showTagModal(tag) {
+        title.textContent = tag.name;
+        description.textContent = tag.description || 'No description available.';
+
+        if (tag.citation) {
+          citationDiv.innerHTML = `
+            <div class="flex items-center">
+              <i class="fas fa-external-link-alt text-primary-dark mr-2"></i>
+              <a href="${tag.citation.url}" target="_blank" rel="noopener noreferrer"
+                 class="text-primary-dark hover:underline inline-flex items-center">
+                ${tag.citation.title || 'Learn more'}
+              </a>
+            </div>`;
+        } else {
+          citationDiv.innerHTML = '';
+        }
+
+        if (tag.related_work && tag.related_work.length > 0) {
+          relatedWorkDiv.innerHTML = `
+            <h4 class="text-lg font-semibold text-white mb-3">Related Work</h4>
+            <ul class="space-y-3">
+              ${tag.related_work.map(work =>
+                `<li class="pb-2 border-b border-gray-700 last:border-0">
+                  <a href="${work.url}" target="_blank" rel="noopener noreferrer"
+                     class="text-primary-dark font-medium hover:underline">
+                    ${work.title}
+                  </a>
+                  <p class="text-gray-300 mt-1 text-sm">
+                    ${work.description}
+                  </p>
+                </li>`
+              ).join('')}
+            </ul>`;
+        } else {
+          relatedWorkDiv.innerHTML = '';
+        }
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.add('bg-opacity-70');
+          modal.classList.remove('bg-opacity-0');
+          modalContent.classList.remove('scale-95', 'opacity-0');
+          modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+
+        modal.addEventListener('click', handleOutsideClick);
+      }
+
+      function hideModal() {
+        modal.classList.remove('bg-opacity-70');
+        modal.classList.add('bg-opacity-0');
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+
+        setTimeout(() => {
+          modal.classList.add('hidden');
+        }, 300);
+
+        modal.removeEventListener('click', handleOutsideClick);
+      }
+
+      function handleOutsideClick(event) {
+        if (event.target === modal) {
+          hideModal();
+        }
+      }
+
+      document.querySelectorAll('[data-tag-name]').forEach(button => {
+        button.addEventListener('click', () => {
+          const tagName = button.getAttribute('data-tag-name');
+          const tagData = window.profileTags.find(t => t.name === tagName);
+          if (tagData) {
+            showTagModal(tagData);
+          } else {
+            console.error(`Tag data not found for: ${tagName}`);
+          }
+        });
+      });
+
+      closeButtons.forEach(button => {
+        button.addEventListener('click', hideModal);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+          hideModal();
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupModal);
+    } else {
+      setupModal();
+    }
+  </script>
 </Layout>

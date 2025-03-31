@@ -1,9 +1,9 @@
 import type { Profile } from '../types';
-import { loftwah } from './profiles/loftwah';
+import { sethrose } from './profiles/thesethrose';
 
 // Add all profiles to this object
 const profiles: Record<string, Profile> = {
-  loftwah
+  thesethrose: sethrose
 };
 
 export const getAllProfiles = (): Profile[] => {

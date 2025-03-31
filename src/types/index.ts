@@ -2,7 +2,7 @@
 import type { ImageMetadata } from 'astro';
 
 export interface SocialLink {
-  platform: 'github' | 'twitter' | 'x-twitter' | 'bluesky' | 'linkedin';
+  platform: 'github' | 'twitter' | 'x-twitter' | 'bluesky' | 'linkedin' | 'mastodon' | 'threads';
   url: string;
 }
 

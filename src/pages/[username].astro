@@ -8,7 +8,7 @@ import type { ImageMetadata } from 'astro';
 
 export async function getStaticPaths() {
   const profiles = getPublicProfiles();
-  
+
   return profiles.map(profile => ({
     params: { username: profile.username },
     props: { profile }
@@ -23,7 +23,7 @@ const ogDescription = profile.ogDescription || profile.description;
 const ogImage = profile.ogImageUrl;
 ---
 
-<Layout 
+<Layout
   title={`${profile.name} - Linkarooie`}
   description={profile.description}
   ogImage={ogImage}
@@ -33,8 +33,8 @@ const ogImage = profile.ogImageUrl;
     <!-- Banner & Avatar -->
     <div class="relative">
       <div class="w-full h-48 sm:h-64 md:h-80 overflow-hidden">
-        <Image 
-          src={profile.bannerUrl} 
+        <Image
+          src={profile.bannerUrl}
           alt={`${profile.name}'s banner`}
           class="w-full h-full object-cover"
           width={1200}
@@ -42,11 +42,11 @@ const ogImage = profile.ogImageUrl;
           quality={90}
         />
       </div>
-      
+
       <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
         <div class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-gray-500 dark:border-gray-300 bg-white dark:bg-gray-800">
-          <Image 
-            src={profile.avatarUrl} 
+          <Image
+            src={profile.avatarUrl}
             alt={`${profile.name}'s avatar`}
             class="w-full h-full object-cover"
             width={128}
@@ -56,28 +56,38 @@ const ogImage = profile.ogImageUrl;
         </div>
       </div>
     </div>
-    
+
     <!-- Profile Info -->
     <div class="mt-16 md:mt-20 text-center px-4">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{profile.name}</h1>
       <p class="text-gray-600 dark:text-gray-400">@{profile.username}</p>
-      
+
       <p class="mt-4 text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">{profile.description}</p>
-      
+
       <p class="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">{profile.bio}</p>
-      
+
       <!-- Social Links -->
       {profile.socialLinks.length > 0 && (
         <div class="flex justify-center space-x-4 mt-4">
           {profile.socialLinks.map(social => {
-            const iconClass = social.platform === 'x-twitter' 
-              ? 'fab fa-x-twitter text-2xl' 
-              : `fab fa-${social.platform} text-2xl`;
-            const screenReaderText = social.platform === 'x-twitter' ? 'Twitter/X' : social.platform;
+            let iconClass = '';
+            let screenReaderText = social.platform;
+
+            // Handle special cases for social icons
+            if (social.platform === 'x-twitter') {
+              iconClass = 'fab fa-x-twitter text-2xl';
+              screenReaderText = 'Twitter/X';
+            } else if (social.platform === 'threads') {
+              iconClass = 'fab fa-instagram text-2xl'; // Use Instagram icon as Threads fallback
+              screenReaderText = 'Threads';
+            } else {
+              iconClass = `fab fa-${social.platform} text-2xl`;
+            }
+
             return (
-              <a 
-                href={social.url} 
-                target="_blank" 
+              <a
+                href={social.url}
+                target="_blank"
                 rel="noopener noreferrer"
                 class="text-gray-600 hover:text-[#9333ea] dark:text-gray-400 dark:hover:text-[#a5fd0e] transition-all duration-200 transform hover:scale-125"
                 data-track="true"
@@ -91,12 +101,12 @@ const ogImage = profile.ogImageUrl;
           })}
         </div>
       )}
-      
+
       <!-- Tags (clickable buttons to open modal) -->
       {profile.tags.length > 0 && (
         <div class="flex flex-wrap justify-center gap-2 mt-6 max-w-md mx-auto">
           {profile.tags.map(tag => (
-            <button 
+            <button
               type="button"
               data-tag-name={tag.name}
               class="px-3 py-1 bg-gray-200 dark:bg-gray-800 text-[#9333ea] dark:text-[#a5fd0e] rounded-full text-sm border border-[#9333ea] dark:border-[#a5fd0e] cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
@@ -108,7 +118,7 @@ const ogImage = profile.ogImageUrl;
         </div>
       )}
     </div>
-    
+
     <!-- Links Section -->
     <section class="mt-12 px-4">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Links</h2>
@@ -121,7 +131,7 @@ const ogImage = profile.ogImageUrl;
         <LinkCard link={link} />
       ))}
     </section>
-    
+
     <!-- Achievements Section -->
     <section class="mt-12 px-4">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
@@ -136,7 +146,7 @@ const ogImage = profile.ogImageUrl;
         <AchievementCard achievement={achievement} />
       ))}
     </section>
-    
+
     <!-- Modal for tag details -->
     <div id="tag-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 transition-opacity duration-300 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="relative bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg md:rounded-xl mx-4 max-w-lg w-full max-h-[90vh] md:max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-300 dark:border-gray-700 transform transition-transform duration-300 ease-out scale-95 opacity-0" id="modal-content">
@@ -145,24 +155,24 @@ const ogImage = profile.ogImageUrl;
           <i class="fas fa-times text-xl"></i>
           <span class="sr-only">Close</span>
         </button>
-        
+
         <!-- Tag header with icon -->
         <div class="flex items-center mb-4">
           <i class="fas fa-tag text-[#9333ea] dark:text-[#a5fd0e] mr-3 text-xl"></i>
           <h3 id="modal-title" class="text-2xl font-bold text-gray-900 dark:text-white"></h3>
         </div>
-        
+
         <div class="mt-2 mb-4 border-t border-gray-200 dark:border-gray-700"></div>
-        
+
         <!-- Tag description -->
         <p id="modal-description" class="mt-2 text-gray-700 dark:text-gray-300 text-lg"></p>
-        
+
         <!-- Citation link -->
         <div id="modal-citation" class="mt-4 font-medium"></div>
-        
+
         <!-- Related work section -->
         <div id="modal-related-work" class="mt-6"></div>
-        
+
         <!-- Close button at bottom -->
         <div class="mt-6 flex justify-end">
           <button id="close-modal-bottom" class="px-5 py-2.5 bg-[#9333ea] dark:bg-[#a5fd0e] text-white dark:text-gray-900 rounded-lg hover:bg-[#7e2cc9] dark:hover:bg-[#8de30b] transition-colors font-medium shadow-sm">
@@ -181,12 +191,12 @@ const ogImage = profile.ogImageUrl;
     function setupModal() {
       // First check if we're on a profile page (by checking if the modal elements exist)
       const modal = document.getElementById('tag-modal');
-      
+
       // If modal doesn't exist, we're probably not on a profile page, so exit gracefully
       if (!modal) {
         return;
       }
-      
+
       const modalContent = document.getElementById('modal-content');
       const title = document.getElementById('modal-title');
       const description = document.getElementById('modal-description');
@@ -203,12 +213,12 @@ const ogImage = profile.ogImageUrl;
         // Set content
         title.textContent = tag.name;
         description.textContent = tag.description || 'No description available.';
-        
+
         if (tag.citation) {
           citationDiv.innerHTML = `
             <div class="flex items-center">
               <i class="fas fa-external-link-alt text-[#9333ea] dark:text-[#a5fd0e] mr-2"></i>
-              <a href="${tag.citation.url}" target="_blank" rel="noopener noreferrer" 
+              <a href="${tag.citation.url}" target="_blank" rel="noopener noreferrer"
                  class="text-[#9333ea] dark:text-[#a5fd0e] hover:underline inline-flex items-center">
                 ${tag.citation.title || 'Learn more'}
               </a>
@@ -217,14 +227,14 @@ const ogImage = profile.ogImageUrl;
         } else {
           citationDiv.innerHTML = '';
         }
-        
+
         if (tag.related_work && tag.related_work.length > 0) {
           relatedWorkDiv.innerHTML = `
             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Related Work</h4>
             <ul class="space-y-3">
-              ${tag.related_work.map(work => 
+              ${tag.related_work.map(work =>
                 `<li class="pb-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                  <a href="${work.url}" target="_blank" rel="noopener noreferrer" 
+                  <a href="${work.url}" target="_blank" rel="noopener noreferrer"
                      class="text-[#9333ea] dark:text-[#a5fd0e] font-medium hover:underline">
                     ${work.title}
                   </a>
@@ -238,7 +248,7 @@ const ogImage = profile.ogImageUrl;
         } else {
           relatedWorkDiv.innerHTML = '';
         }
-        
+
         // Show modal with animation
         modal.classList.remove('hidden');
         setTimeout(() => {
@@ -247,7 +257,7 @@ const ogImage = profile.ogImageUrl;
           modalContent.classList.remove('scale-95', 'opacity-0');
           modalContent.classList.add('scale-100', 'opacity-100');
         }, 10);
-        
+
         // Prevent body scrolling when modal is open
         document.body.style.overflow = 'hidden';
       }
@@ -256,7 +266,7 @@ const ogImage = profile.ogImageUrl;
         // Hide with animation
         modalContent.classList.remove('scale-100', 'opacity-100');
         modalContent.classList.add('scale-95', 'opacity-0');
-        
+
         setTimeout(() => {
           modal.classList.add('hidden');
           // Restore body scrolling
@@ -296,12 +306,12 @@ const ogImage = profile.ogImageUrl;
 
     // Run setup on DOMContentLoaded
     document.addEventListener('DOMContentLoaded', setupModal);
-    
+
     // Also run setup immediately in case the script loads after DOMContentLoaded
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
       setTimeout(setupModal, 1);
     }
-    
+
     // Make sure popups work with Astro's view transitions
     document.addEventListener('astro:after-swap', setupModal);
   </script>

@@ -6,6 +6,9 @@ export default defineConfig({
   base: '/',
   integrations: [],
   output: 'static',
+  image: {
+    domains: ['pbs.twimg.com']
+  },
   vite: {
     plugins: [tailwindcss()]
   }
